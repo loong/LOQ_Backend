@@ -11,16 +11,17 @@ var express     =   require("express");
 var multer      =   require('multer');
 var app         =   express();
 
-
 //////////////////////////////////////////////////////////////////////
 /// Image upload
 //////////////////////////////////////////////////////////////////////
-var upload      =   multer({ dest: './uploads/'});
+var upload      =   multer({ dest: './public/uploads/'});
 
-app.use(multer({ dest: './uploads/',
+app.use(multer({ dest: './public/uploads/',
     rename: function (fieldname, filename) {
         return filename+Date.now();               // Ensures uniqueness
     },
+    /// @todo check if filetype is actually an image
+    //  https://github.com/mscdex/mmmagic
     onFileUploadStart: function (file) {
         console.log(file.originalname + ' is starting ...');
     },
@@ -28,17 +29,16 @@ app.use(multer({ dest: './uploads/',
         console.log(file.fieldname + ' uploaded to  ' + file.path)
 
 	// Use dependency injection to pass on this variable
-	req.filepath = file.path;
+	req.filepath = file.path.replace("public/", "");
     }
 }));
 
-/// @todo return JSON object with filepath
 app.post('/api/uploadphoto', function(req, res){
     upload(req, res, function(err) {
         if(err) {
-            return res.end("Error uploading file.");
+            return res.json({Error: "uploadphoto has an error:\n"+err});
         }
-        res.end("File is uploaded\n"+req.filepath);
+        res.json({Filepath: req.filepath});
     });
 });
 
@@ -47,7 +47,7 @@ app.post('/api/uploadphoto', function(req, res){
 /// General Stuff
 //////////////////////////////////////////////////////////////////////
 
-app.get('/',function(req,res){
+app.get('/',function(req, res){
       res.end("Hello World");
 });
 
@@ -55,5 +55,5 @@ app.get('/',function(req,res){
 app.use(express.static(__dirname + '/public'))
 
 app.listen((process.env.PORT || 5000), function(){
-    console.log("Working on port 3000");
+    console.log("Working on port 5000");
 });
