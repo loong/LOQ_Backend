@@ -57,3 +57,26 @@ app.use(express.static(__dirname + '/public'))
 app.listen((process.env.PORT || 5000), function(){
     console.log("Working on port 5000");
 });
+
+//////////////////////////////////////////////////////////////////////
+/// For testing purposes. Feel free to remove them anytime
+//////////////////////////////////////////////////////////////////////
+
+var testCounter = 0;
+
+app.get('/testCounter',function(req, res){
+    res.send({err:null, result:testCounter}});
+});
+
+app.post('/testCounter',function(req, res){
+    console.log(req.body.counterValue);
+
+    if (req.body.counterValue<0 || req.body.counterValue>1000){
+        res.send({err:"counter request value is out of range", result:null});
+    }
+    else{
+        testCounter = req.body.counterValue;
+        res.send({err:null, result:testCounter});
+    }
+
+});
