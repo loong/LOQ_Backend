@@ -65,7 +65,7 @@ app.listen((process.env.PORT || 5000), function(){
 var testCounter = 0;
 
 app.get('/testCounter',function(req, res){
-    res.send({err:null, result:testCounter}});
+    res.send({err:null, result:testCounter});
 });
 
 app.post('/testCounter',function(req, res){
