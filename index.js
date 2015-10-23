@@ -8,47 +8,52 @@
 ///
 //////////////////////////////////////////////////////////////////////
 
-
 //////////////////////////////////////////////////////////////////////
-/// Routing and middleware
-//////////////////////////////////////////////////////////////////////
+/// Global vars and constants
 
-// setup express
 var express = require('express');
 var app = express();
 
-//need body parser for POST requests (req parser)
-var bodyParser = require('body-parser');
+var port = process.env.PORT || 8080;
+var mongodbUri = process.env.MONGOLAB_URI || "mongodb://heroku_ms37k84v:qc3nsje0ljjuq2vbjtugnkj6fh@ds041150.mongolab.com:41150/heroku_ms37k84v";
 
-// setup mongo and connect
-// db used is sample
-/* 
- * Mongoose by default sets the auto_reconnect option to true.
- * We recommend setting socket options at both the server and replica set level.
- * We recommend a 30 second connection timeout because it allows for 
- * plenty of time in most operating environments.
- */
-var options = { server: { socketOptions: { keepAlive: 1, connectTimeoutMS: 30000 } }, 
-                replset: { socketOptions: { keepAlive: 1, connectTimeoutMS : 30000 } } };       
-var mongoose = require('mongoose');
+var conn;
+
+//////////////////////////////////////////////////////////////////////
+/// Initialise Mongolab Database
+
 var uriUtil = require('mongodb-uri');
-var mongodbUri = process.env.MONGOLAB_URI;
+var mongoose = require('mongoose');
+
 var mongooseUri = uriUtil.formatMongoose(mongodbUri);
 
 console.log("Connect to " + mongodbUri);
-mongoose.connect(mongooseUri, options);
-var conn = mongoose.connection;             
- 
-conn.on('error', console.error.bind(console, 'connection error:'));  
+mongoose.connect(mongooseUri); 
+conn = mongoose.connection;
+
+conn.on('error', function(err) {
+    console.log("Mongoose Connection Error: " + err);
+    throw err;
+});
+
+conn.on('connected', function() {
+    console.log("Successfully connected to Mongolab");
+
+    // @todo start all the database stuff asynchronously
+});
 
 // refer to Question model (schema)
 var Question = require('./app/models/question');
 
+//////////////////////////////////////////////////////////////////////
+/// @todo clean up code below
+
+//need body parser for POST requests (req parser)
+var bodyParser = require('body-parser');
+
 // use url encoded parsing. may need to change this.
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-
-var port = process.env.PORT || 8080;
 
 // establish the routes
 var router = express.Router();
@@ -58,7 +63,6 @@ router.use(function(req, res, next) {
     console.log("Processing REST API request");
     next();
 });
-
 
 router.get('/', function(req, res) {
     res.json({ message: 'Welcome to the API'});
@@ -128,7 +132,6 @@ app.listen(port);
 console.log("Okay starting node server");
 
 
-
 //////////////////////////////////////////////////////////////////////
 /// Image upload
 //////////////////////////////////////////////////////////////////////
@@ -163,4 +166,3 @@ app.post('/api/uploadphoto', function(req, res){
         res.json({Filepath: req.filepath});
     });
 });
-
