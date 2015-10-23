@@ -9,7 +9,6 @@
 //////////////////////////////////////////////////////////////////////
 
 
-
 //////////////////////////////////////////////////////////////////////
 /// Routing and middleware
 //////////////////////////////////////////////////////////////////////
@@ -23,12 +22,24 @@ var bodyParser = require('body-parser');
 
 // setup mongo and connect
 // db used is sample
+/* 
+ * Mongoose by default sets the auto_reconnect option to true.
+ * We recommend setting socket options at both the server and replica set level.
+ * We recommend a 30 second connection timeout because it allows for 
+ * plenty of time in most operating environments.
+ */
+var options = { server: { socketOptions: { keepAlive: 1, connectTimeoutMS: 30000 } }, 
+                replset: { socketOptions: { keepAlive: 1, connectTimeoutMS : 30000 } } };       
 var mongoose = require('mongoose');
-var url = 'mongodb://root:hwaiting@ds041150.mongolab.com:41150/heroku_ms37k84v';
-mongoose.connect(url, function(err) {
-    console.log("test");
-    if (err) throw err;
-});
+var uriUtil = require('mongodb-uri');
+var mongodbUri = process.env.MONGOLAB_URI;
+var mongooseUri = uriUtil.formatMongoose(mongodbUri);
+
+console.log("Connect to " + mongodbUri);
+mongoose.connect(mongooseUri, options);
+var conn = mongoose.connection;             
+ 
+conn.on('error', console.error.bind(console, 'connection error:'));  
 
 // refer to Question model (schema)
 var Question = require('./app/models/question');
@@ -63,12 +74,15 @@ router.route('/question')
         //question.text = req.body.text;
 
         question.save(function(err) {
-            if (err)
-                res.send(err)
-
+            if (err) {
+                console.log(err);
+		res.send(err);
+	    }
             res.json({ message: 'Added Question!'});
-
+	    console.log("Added!");
         });
+
+	console.log("Done!");
     })
 
     .get(function(req, res) {
