@@ -54,4 +54,3 @@ var QuestionSchema = new Schema({
 // note that when making a model of Question, mongodb makes collection questions
 // automatically plural
 module.exports = mongoose.model('Question', QuestionSchema)
-

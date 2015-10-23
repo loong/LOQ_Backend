@@ -24,8 +24,11 @@ var bodyParser = require('body-parser');
 // setup mongo and connect
 // db used is sample
 var mongoose = require('mongoose');
-var url = 'mongodb://localhost:27017/sample';
-mongoose.connect(url);
+var url = 'mongodb://root:hwaiting@ds041150.mongolab.com:41150/heroku_ms37k84v';
+mongoose.connect(url, function(err) {
+    console.log("test");
+    if (err) throw err;
+});
 
 // refer to Question model (schema)
 var Question = require('./app/models/question');
