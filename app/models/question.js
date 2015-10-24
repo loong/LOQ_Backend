@@ -12,14 +12,14 @@ var QuestionSchema = new Schema({
 		userId: Number,
 		username: String,
 		text: String,
-		time: Date,
+		time: {type: Date, default: Date.now},
 		imageURL: String,
 		follow_ups: [{
 			id: Number,
 			userId: Number,
 			username: String,
 			text: String,
-			time: Date,
+			time: {type: Date, default: Date.now},
 			imageURL: String
 		}]
 	}]
@@ -41,7 +41,7 @@ var QuestionSchema = new Schema({
 //                 "username": "followUpDude",
 //                 "text":"no way man"
 //             },
-//             { 
+//             {
 //                 "username": "followUpYourfollowUP",
 //                 "text":"YES WAY!"
 //             }

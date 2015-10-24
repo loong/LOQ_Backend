@@ -28,7 +28,7 @@ var mongoose = require('mongoose');
 var mongooseUri = uriUtil.formatMongoose(mongodbUri);
 
 console.log("Connect to " + mongodbUri);
-mongoose.connect(mongooseUri); 
+mongoose.connect(mongooseUri);
 conn = mongoose.connection;
 
 conn.on('error', function(err) {
@@ -71,7 +71,7 @@ router.get('/', function(req, res) {
 // POST add question
 // GET show all questions
 router.route('/question')
-    
+
     .post(function(req, res) {
 	console.log("\t" + JSON.stringify(req.body));
 
@@ -93,7 +93,7 @@ router.route('/question')
 	}
 
         var question = new Question({
-	    text: req.body.text, 
+	    text: req.body.text,
 	    imageURL: imgURL,
 	    room: req.body.room.toLowerCase()
 	});
@@ -126,27 +126,27 @@ router.route('/question')
 router.route('/question/:question_id')
     .get(function(req, res) {
         Question.findById(req.params.question_id,  function(err, question) {
-            
+
 	    if (err) {
 		console.log("Error in Get /question/:id \n" + err);
 	    }
-	    
+
 	    if (!question) {
 		res.json({
-		    error: "Question with id " 
-			+ req.params.question_id 
+		    error: "Question with id "
+			+ req.params.question_id
 			+ " does not exists"
 		});
 		return;
 	    }
-	    
+
             res.json(question);
         });
     })
 
     .delete(function(req, res) {
 	/// @todo check if user is logged in and owns the question or is admin
-        
+
 	Question.remove({
             _id: req.params.question_id
         }, function(err, question) {
@@ -154,7 +154,7 @@ router.route('/question/:question_id')
                 res.send(err);
 		return;
 	    }
-	    
+
             res.json({ error: "" });
         });
     });
@@ -166,11 +166,102 @@ router.route('/questions/room/:room_id')
                 res.send(err);
 		return;
 	    }
-	    
+
             res.json(questions);
 	});
     });
-    
+
+
+////////////////////////////////////////////
+//      posting answers
+///////////////////////////////////////////
+function questionExists(req, res, err, question) {
+  if (!question) {
+    res.json({
+      error: "Question with id "
+      + req.params.question_id
+      + " does not exists"
+    });
+    return false;
+  }
+  if (err) {
+    console.log("Error in Get /question/:id \n" + err);
+    return false;
+  }
+
+  return true;
+
+}
+
+router.route('/answer/:question_id')
+    .post(function(req, res) {
+        Question.findById(req.params.question_id,  function(err, question) {
+
+          // find question by ID, and validate the result.
+          if (!questionExists(req, res, err, question))
+            return;
+
+          // validate post.body and perform few autofix
+          if (!req.body.text) {
+        	    res.json({error:"Question has no text!"});
+        	    return
+        	}
+        	var postImgURL = req.body.imageURL;
+        	if (!postImgURL) {
+        	    postImgURL = "";
+        	}
+          var answerToPush = {text: req.body.text, imageURL: postImgURL};
+
+          // push answerToPush into answers array
+          Question.findByIdAndUpdate(req.params.question_id, { $push: { answers: answerToPush }}, {safe:true, upsert:true, new: true},function (err, updatedQuestion) {
+            if (err) {
+              console.log(err);
+		          res.send(err);
+		          return;
+	          }
+            res.json({error: "", id: updatedQuestion.answers[updatedQuestion.answers.length-1]._id});
+            console.log("Added Answer with id " + updatedQuestion.answers[updatedQuestion.answers.length-1]._id);
+          });
+            //res.json(question);
+        });
+    })
+    .delete(function(req, res) {
+	/// @todo check if user is logged in and owns the question or is admin
+/*
+      Question.findById(req.params.question_id,  function(err, question) {
+
+        // find question by ID, and validate the result.
+        if (!questionExists(req, res, err, question))
+          return;
+
+        // validate post.body and perform few autofix
+        if (!req.body.text) {
+            res.json({error:"Question has no text!"});
+            return
+        }
+        var postImgURL = req.body.imageURL;
+        if (!postImgURL) {
+            postImgURL = "";
+        }
+        var answerToPush = {text: req.body.text, imageURL: postImgURL};
+
+        // push answerToPush into answers array
+        Question.findByIdAndUpdate(req.params.question_id, { $push: { answers: answerToPush }}, {safe:true, upsert:true, new: true},function (err, updatedQuestion) {
+          if (err) {
+            console.log(err);
+            res.send(err);
+            return;
+          }
+          res.json({error: "", id: updatedQuestion.answers[updatedQuestion.answers.length-1]._id});
+          console.log("Added Answer with id " + updatedQuestion.answers[updatedQuestion.answers.length-1]._id);
+        });
+          //res.json(question);
+      });*/
+    });
+
+////////////////////////////////////////////
+//      posting follow_ups
+///////////////////////////////////////////
 
 // root to /api/v1
 app.use('/api/v1', router);
@@ -187,10 +278,10 @@ var multer      =   require('multer');
 
 var upload      =   multer({ dest: './public/uploads/'});
 
-cloudinary.config({ 
-  cloud_name: 'hrkljqeas', 
-  api_key: '786599874844472', 
-  api_secret: 'm0rVQidbQ55FIRNB9DYHnuzF9-U' 
+cloudinary.config({
+  cloud_name: 'hrkljqeas',
+  api_key: '786599874844472',
+  api_secret: 'm0rVQidbQ55FIRNB9DYHnuzF9-U'
 });
 
 // Static fileserver serving files in /public folder
@@ -220,7 +311,7 @@ app.post('/api/uploadphoto', function(req, res){
         }
 
 	var filename = "./public/" + req.filepath;
-	cloudinary.uploader.upload(filename, function(result) { 
+	cloudinary.uploader.upload(filename, function(result) {
 	    if (result.error) {
 		return res.json({error: "Something went wrong with cloudinary upload"});
 	    }
