@@ -2,7 +2,6 @@ var mongoose = require('mongoose')
 var Schema = mongoose.Schema;
 
 var QuestionSchema = new Schema({
-	id: Number,
 	userId: Number,
 	text: String,
 	imageURL: String,

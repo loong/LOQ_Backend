@@ -20,7 +20,7 @@ var mongodbUri = process.env.MONGOLAB_URI || "mongodb://heroku_ms37k84v:qc3nsje0
 var conn;
 
 //////////////////////////////////////////////////////////////////////
-/// Initialise Mongolab Database
+/// Initialise and connect to Mongolab Database
 
 var uriUtil = require('mongodb-uri');
 var mongoose = require('mongoose');
@@ -73,50 +73,83 @@ router.get('/', function(req, res) {
 router.route('/question')
     
     .post(function(req, res) {
-        var question = new Question(req.body);
-        console.log(JSON.stringify(req.body));
-        //question.text = req.body.text;
+	console.log("\t" + JSON.stringify(req.body));
 
-        question.save(function(err) {
+	/// @todo check if user is logged in
+
+	if (!req.body.text) {
+	    res.json({error:"Question has no text!"});
+	    return
+	}
+
+	var imgURL = req.body.imageURL;
+	if (!imgURL) {
+	    imgURL = "";
+	}
+
+        var question = new Question({
+	    text: req.body.text, 
+	    imageURL: imgURL
+	});
+
+        question.save(function(err, savedQuestion) {
             if (err) {
                 console.log(err);
 		res.send(err);
+		return
 	    }
-            res.json({ message: 'Added Question!'});
-	    console.log("Added!");
-        });
 
-	console.log("Done!");
+            res.json({error: "", id: savedQuestion._id});
+	    console.log("Added Question with id " + savedQuestion._id);
+        });
     })
 
     .get(function(req, res) {
         Question.find(function(err, questions){
-            if (err)
+            if (err) {
+		console.log(err);
                 res.send(err);
+		return;
+	    }
+
             res.json(questions);
         });
     });
 
 
-// GET question by id
-// DELETE question by id
 router.route('/question/:question_id')
     .get(function(req, res) {
         Question.findById(req.params.question_id,  function(err, question) {
-            if (err)
-                res.send(err);
+            
+	    if (err) {
+		console.log("Error in Get /question/:id \n" + err);
+	    }
+	    
+	    if (!question) {
+		res.json({
+		    error: "Question with id " 
+			+ req.params.question_id 
+			+ " does not exists"
+		});
+		return;
+	    }
+	    
             res.json(question);
         });
     })
 
     .delete(function(req, res) {
-        Question.remove({
+	/// @todo check if user is logged in and owns the question or is admin
+        
+	Question.remove({
             _id: req.params.question_id
         }, function(err, question) {
-            if (err)
+            if (err) {
                 res.send(err);
-
-            res.json({ message: 'Successfully deleted' });
+		return;
+	    }
+	    
+            res.json({ error: "" });
         });
     });
 
