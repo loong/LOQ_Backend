@@ -182,8 +182,16 @@ console.log("Okay starting node server");
 //////////////////////////////////////////////////////////////////////
 /// Image upload
 //////////////////////////////////////////////////////////////////////
+var cloudinary  =   require('cloudinary')
 var multer      =   require('multer');
+
 var upload      =   multer({ dest: './public/uploads/'});
+
+cloudinary.config({ 
+  cloud_name: 'hrkljqeas', 
+  api_key: '786599874844472', 
+  api_secret: 'm0rVQidbQ55FIRNB9DYHnuzF9-U' 
+});
 
 // Static fileserver serving files in /public folder
 app.use(express.static(__dirname + '/public'))
@@ -208,8 +216,16 @@ app.use(multer({ dest: './public/uploads/',
 app.post('/api/uploadphoto', function(req, res){
     upload(req, res, function(err) {
         if(err) {
-            return res.json({Error: "uploadphoto has an error:\n"+err});
+            return res.json({error: "uploadphoto has an error:\n"+err});
         }
-        res.json({Filepath: req.filepath});
+
+	var filename = "./public/" + req.filepath;
+	cloudinary.uploader.upload(filename, function(result) { 
+	    if (result.error) {
+		return res.json({error: "Something went wrong with cloudinary upload"});
+	    }
+
+            res.json({Filepath: result.url});
+	});
     });
 });
