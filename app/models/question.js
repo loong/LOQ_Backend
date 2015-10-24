@@ -4,6 +4,7 @@ var Schema = mongoose.Schema;
 var QuestionSchema = new Schema({
 	userId: Number,
 	text: String,
+        room: String,
 	imageURL: String,
 	time: {type: Date, default: Date.now},
 	answers: [{

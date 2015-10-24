@@ -82,6 +82,11 @@ router.route('/question')
 	    return
 	}
 
+	if (!req.body.room) {
+	    res.json({error:"Question has no room!"});
+	    return
+	}
+
 	var imgURL = req.body.imageURL;
 	if (!imgURL) {
 	    imgURL = "";
@@ -89,7 +94,8 @@ router.route('/question')
 
         var question = new Question({
 	    text: req.body.text, 
-	    imageURL: imgURL
+	    imageURL: imgURL,
+	    room: req.body.room.toLowerCase()
 	});
 
         question.save(function(err, savedQuestion) {
@@ -153,10 +159,18 @@ router.route('/question/:question_id')
         });
     });
 
-router.route('/answer/:question_id')
-    .post(function(req, res) {
-
-    })
+router.route('/questions/room/:room_id')
+    .get(function(req, res) {
+	Question.find({room: req.params.room_id}, function (err, questions) {
+	    if (err) {
+                res.send(err);
+		return;
+	    }
+	    
+            res.json(questions);
+	});
+    });
+    
 
 // root to /api/v1
 app.use('/api/v1', router);
