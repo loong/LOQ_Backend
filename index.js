@@ -24,6 +24,7 @@ var conn;
 
 var uriUtil = require('mongodb-uri');
 var mongoose = require('mongoose');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 var mongooseUri = uriUtil.formatMongoose(mongodbUri);
 
@@ -193,9 +194,119 @@ function questionExists(req, res, err, question) {
 
 }
 
-router.route('/answer/:question_id')
+router.route('/answer')
     .post(function(req, res) {
-        Question.findById(req.params.question_id,  function(err, question) {
+        if (!req.body.id){
+          res.json({error:"non-existant id"});
+          return;
+        }
+        Question.findById(req.body.id,  function(err, question) {
+
+          // find question by ID, and validate the result.
+          if (!questionExists(req, res, err, question))
+            return;
+
+          // validate post.body and perform few autofix
+          if (!req.body.text) {
+        	    res.json({error:"Question has no text!"});
+        	    return
+        	}
+        	var postImgURL = req.body.imageURL;
+        	if (!postImgURL) {
+        	    postImgURL = "";
+        	}
+          var answerToPush = {text: req.body.text, imageURL: postImgURL};
+
+          // push answerToPush into answers array
+          Question.findByIdAndUpdate(req.body.id, { $push: { answers: answerToPush }}, {safe:true, upsert:true, new: true},function (err, updatedQuestion) {
+            if (err) {
+              console.log(err);
+		          res.send(err);
+		          return;
+	          }
+            res.json({error: "", id: updatedQuestion.answers[updatedQuestion.answers.length-1]._id});
+            console.log("Added Answer with id " + updatedQuestion.answers[updatedQuestion.answers.length-1]._id);
+          });
+            //res.json(question);
+        });
+    })
+    .delete(function(req, res) {    // in this DELETE, req.params.question_id is the TARGET ID OF ANSWER element
+	/// @todo check if user is logged in and owns the question or is admin
+      if (!req.body.id){
+        res.json({error:"non-existant id"});
+        return;
+      }
+      Question.findOne({"answers._id": req.body.id}, function(err, question){
+        if (!questionExists(req, res, err, question))
+          return;
+        //console.log(question);
+        console.log(req.body.id);
+        for (var i=0; i<question.answers.length; i++) {
+          console.log(question.answers[i]._id);
+          if (req.body.id==question.answers[i]._id) {
+            console.log("splice "+question.answers[i]);
+            question.answers.splice(i, 1);
+            break;
+          }
+        }
+        //console.log(question);
+        question.save(function(err, savedQuestion) {
+          if (err)
+            console.log(err);
+      		res.send(err);
+      		return;
+        });
+        /*Question.findOneAndUpdate({_id: new ObjectId(question._id)}, { $pull: {answers: {_id: new ObjectId(req.params.question_id)}}}, {safe:true}, function (err, updatedQuestion) {
+          if (err) {
+            console.log(err);
+            res.send(err);
+            return;
+          }
+          console.log(updatedQuestion);
+          res.json({error: ""});
+          console.log("Deleted an item");
+        });
+            //res.json(question);*/
+      });
+
+    });
+/*
+      Question.findById(req.params.question_id,  function(err, question) {
+
+        // find question by ID, and validate the result.
+        if (!questionExists(req, res, err, question))
+          return;
+
+        // validate post.body and perform few autofix
+        if (!req.body.text) {
+            res.json({error:"Question has no text!"});
+            return
+        }
+        var postImgURL = req.body.imageURL;
+        if (!postImgURL) {
+            postImgURL = "";
+        }
+        var answerToPush = {text: req.body.text, imageURL: postImgURL};
+
+        // push answerToPush into answers array
+        Question.findByIdAndUpdate(req.params.question_id, { $push: { answers: answerToPush }}, {safe:true, upsert:true, new: true},function (err, updatedQuestion) {
+          if (err) {
+            console.log(err);
+            res.send(err);
+            return;
+          }
+          res.json({error: "", id: updatedQuestion.answers[updatedQuestion.answers.length-1]._id});
+          console.log("Added Answer with id " + updatedQuestion.answers[updatedQuestion.answers.length-1]._id);
+        });
+          //res.json(question);
+      });*/
+
+////////////////////////////////////////////
+//      posting follow_ups
+///////////////////////////////////////////
+router.route('/followup')
+    .post(function(req, res) {
+        Question.findById(req.params.answer_id,  function(err, question) {
 
           // find question by ID, and validate the result.
           if (!questionExists(req, res, err, question))
@@ -227,41 +338,12 @@ router.route('/answer/:question_id')
     })
     .delete(function(req, res) {
 	/// @todo check if user is logged in and owns the question or is admin
-/*
-      Question.findById(req.params.question_id,  function(err, question) {
 
-        // find question by ID, and validate the result.
-        if (!questionExists(req, res, err, question))
-          return;
 
-        // validate post.body and perform few autofix
-        if (!req.body.text) {
-            res.json({error:"Question has no text!"});
-            return
-        }
-        var postImgURL = req.body.imageURL;
-        if (!postImgURL) {
-            postImgURL = "";
-        }
-        var answerToPush = {text: req.body.text, imageURL: postImgURL};
-
-        // push answerToPush into answers array
-        Question.findByIdAndUpdate(req.params.question_id, { $push: { answers: answerToPush }}, {safe:true, upsert:true, new: true},function (err, updatedQuestion) {
-          if (err) {
-            console.log(err);
-            res.send(err);
-            return;
-          }
-          res.json({error: "", id: updatedQuestion.answers[updatedQuestion.answers.length-1]._id});
-          console.log("Added Answer with id " + updatedQuestion.answers[updatedQuestion.answers.length-1]._id);
-        });
-          //res.json(question);
-      });*/
     });
 
-////////////////////////////////////////////
-//      posting follow_ups
-///////////////////////////////////////////
+
+
 
 // root to /api/v1
 app.use('/api/v1', router);
