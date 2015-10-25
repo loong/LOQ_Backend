@@ -20,6 +20,9 @@ function questionExists(req, res, err, question) {
 }
 
 init = function(router) {
+  ////////////////////////////////////////////
+  //      /answer
+  ///////////////////////////////////////////
   router.route('/answer')
     .post(function(req, res) {
         if (!req.body.id){

@@ -4,14 +4,14 @@ var Question = require('../app/models/question');
 function questionExists(req, res, err, question) {
   if (!question) {
     res.json({
-      error: "Question with id "
+      error: "Answer with id "
       + req.params.question_id
       + " does not exists"
     });
     return false;
   }
   if (err) {
-    console.log("Error in Get /question/:id \n" + err);
+    console.log("Error in Get /answer/:id \n" + err);
     return false;
   }
 
@@ -20,6 +20,9 @@ function questionExists(req, res, err, question) {
 }
 
 init = function(router){
+  ////////////////////////////////////////////
+  //      /followup
+  ///////////////////////////////////////////
   router.route('/followup')
     .post(function(req, res) {
       if (!req.body.id){

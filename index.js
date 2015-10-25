@@ -69,118 +69,20 @@ router.get('/', function(req, res) {
     res.json({ message: 'Welcome to the API'});
 });
 
-// POST add question
-// GET show all questions
-router.route('/question')
-
-    .post(function(req, res) {
-	console.log("\t" + JSON.stringify(req.body));
-
-	/// @todo check if user is logged in
-
-	if (!req.body.text) {
-	    res.json({error:"Question has no text!"});
-	    return
-	}
-
-	if (!req.body.room) {
-	    res.json({error:"Question has no room!"});
-	    return
-	}
-
-	var imgURL = req.body.imageURL;
-	if (!imgURL) {
-	    imgURL = "";
-	}
-
-        var question = new Question({
-	    text: req.body.text,
-	    imageURL: imgURL,
-	    room: req.body.room.toLowerCase()
-	});
-
-        question.save(function(err, savedQuestion) {
-            if (err) {
-                console.log(err);
-		res.send(err);
-		return
-	    }
-
-            res.json({error: "", id: savedQuestion._id});
-	    console.log("Added Question with id " + savedQuestion._id);
-        });
-    })
-
-    .get(function(req, res) {
-        Question.find(function(err, questions){
-            if (err) {
-		console.log(err);
-                res.send(err);
-		return;
-	    }
-
-            res.json(questions);
-        });
-    });
-
-
-router.route('/question/:question_id')
-    .get(function(req, res) {
-        Question.findById(req.params.question_id,  function(err, question) {
-
-	    if (err) {
-		console.log("Error in Get /question/:id \n" + err);
-	    }
-
-	    if (!question) {
-		res.json({
-		    error: "Question with id "
-			+ req.params.question_id
-			+ " does not exists"
-		});
-		return;
-	    }
-
-            res.json(question);
-        });
-    })
-
-    .delete(function(req, res) {
-	/// @todo check if user is logged in and owns the question or is admin
-
-	Question.remove({
-            _id: req.params.question_id
-        }, function(err, question) {
-            if (err) {
-                res.send(err);
-		return;
-	    }
-
-            res.json({ error: "" });
-        });
-    });
-
-router.route('/questions/room/:room_id')
-    .get(function(req, res) {
-	Question.find({room: req.params.room_id}, function (err, questions) {
-	    if (err) {
-                res.send(err);
-		return;
-	    }
-
-            res.json(questions);
-	});
-    });
-
+////////////////////////////////////////////
+//      GET, POST and DELETE answers
+///////////////////////////////////////////
+var questionRoutes = require("./routes/questionRoutes.js");
+questionRoutes.init(router);
 
 ////////////////////////////////////////////
-//      posting answers
+//      POST and DELETE answers
 ///////////////////////////////////////////
 var answerRoutes = require("./routes/answerRoutes.js");
 answerRoutes.init(router);
 
 ////////////////////////////////////////////
-//      posting follow_ups
+//      POST and DELETE follow_ups
 ///////////////////////////////////////////
 var followupRoutes = require("./routes/followupRoutes.js");
 followupRoutes.init(router);
