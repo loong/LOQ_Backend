@@ -176,106 +176,21 @@ router.route('/questions/room/:room_id')
 ////////////////////////////////////////////
 //      posting answers
 ///////////////////////////////////////////
-function questionExists(req, res, err, question) {
-  if (!question) {
-    res.json({
-      error: "Question with id "
-      + req.params.question_id
-      + " does not exists"
-    });
-    return false;
-  }
-  if (err) {
-    console.log("Error in Get /question/:id \n" + err);
-    return false;
-  }
+var answerRoutes = require("./routes/answerRoutes.js");
+answerRoutes.init(router);
 
-  return true;
-
-}
-
-router.route('/answer')
-    .post(function(req, res) {
-        if (!req.body.id){
-          res.json({error:"non-existant id"});
-          return;
-        }
-        Question.findById(req.body.id,  function(err, question) {
-
-          // find question by ID, and validate the result.
-          if (!questionExists(req, res, err, question))
-            return;
-
-          // validate post.body and perform few autofix
-          if (!req.body.text) {
-        	    res.json({error:"Question has no text!"});
-        	    return
-        	}
-        	var postImgURL = req.body.imageURL;
-        	if (!postImgURL) {
-        	    postImgURL = "";
-        	}
-          var answerToPush = {text: req.body.text, imageURL: postImgURL};
-
-          // push answerToPush into answers array
-          Question.findByIdAndUpdate(req.body.id, { $push: { answers: answerToPush }}, {safe:true, upsert:true, new: true},function (err, updatedQuestion) {
-            if (err) {
-              console.log(err);
-		          res.send(err);
-		          return;
-	          }
-            res.json({error: "", id: updatedQuestion.answers[updatedQuestion.answers.length-1]._id});
-            console.log("Added Answer with id " + updatedQuestion.answers[updatedQuestion.answers.length-1]._id);
-          });
-            //res.json(question);
-        });
-    })
-    .delete(function(req, res) {    // in this DELETE, req.params.question_id is the TARGET ID OF ANSWER element
-	/// @todo check if user is logged in and owns the question or is admin
-      if (!req.body.id){
-        res.json({error:"non-existant id"});
+////////////////////////////////////////////
+//      posting follow_ups
+///////////////////////////////////////////
+router.route('/followup')
+  .post(function(req, res) {
+    if (!req.body.id){
+      res.json({error:"non-existant id"});
+      return;
+    }
+    Question.findOne({"answers._id": req.body.id}, function(err, question){
+      if (!questionExists(req, res, err, question))
         return;
-      }
-      Question.findOne({"answers._id": req.body.id}, function(err, question){
-        if (!questionExists(req, res, err, question))
-          return;
-        //console.log(question);
-        console.log(req.body.id);
-        for (var i=0; i<question.answers.length; i++) {
-          console.log(question.answers[i]._id);
-          if (req.body.id==question.answers[i]._id) {
-            console.log("splice "+question.answers[i]);
-            question.answers.splice(i, 1);
-            break;
-          }
-        }
-        //console.log(question);
-        question.save(function(err, savedQuestion) {
-          if (err)
-            console.log(err);
-      		res.send(err);
-      		return;
-        });
-        /*Question.findOneAndUpdate({_id: new ObjectId(question._id)}, { $pull: {answers: {_id: new ObjectId(req.params.question_id)}}}, {safe:true}, function (err, updatedQuestion) {
-          if (err) {
-            console.log(err);
-            res.send(err);
-            return;
-          }
-          console.log(updatedQuestion);
-          res.json({error: ""});
-          console.log("Deleted an item");
-        });
-            //res.json(question);*/
-      });
-
-    });
-/*
-      Question.findById(req.params.question_id,  function(err, question) {
-
-        // find question by ID, and validate the result.
-        if (!questionExists(req, res, err, question))
-          return;
 
         // validate post.body and perform few autofix
         if (!req.body.text) {
@@ -286,61 +201,51 @@ router.route('/answer')
         if (!postImgURL) {
             postImgURL = "";
         }
-        var answerToPush = {text: req.body.text, imageURL: postImgURL};
+        var followupToPush = {"text": req.body.text, "imageURL": postImgURL}
 
+        var newQuestion = new Question(question);
+        // decide which question to place followup under.
+        //var questionIndex = -1;
+        for (var i=0; i<newQuestion.answers.length; i++) {
+          if (req.body.id==newQuestion.answers[i]._id) {
+            //questionIndex=i;
+            console.log("added followup")
+            //if ()
+            //  newQuestion.answers[i].follow_ups.push(followupToPush);//[newQuestion.answers[i].follow_ups.length]={text: req.body.text, imageURL: postImgURL};
+            //else
+            console.log(newQuestion.answers[i].follow_ups);
+              newQuestion.answers[i].follow_ups[0]="why the hell is this not working";
+            console.log(newQuestion.answers[i].follow_ups[newQuestion.answers[i].follow_ups.length]);
+            break;
+          }
+        }
+        console.log(followupToPush);
+        console.log(newQuestion);
+
+        /*question.save(function(err, savedQuestion) {
+          if (err)
+            console.log(err);
+      		res.send(err);
+      		return;
+        });*/
         // push answerToPush into answers array
-        Question.findByIdAndUpdate(req.params.question_id, { $push: { answers: answerToPush }}, {safe:true, upsert:true, new: true},function (err, updatedQuestion) {
+        /*Question.update({"answers.follow_ups._id": req.body.text}, { $push: { "answers.questionIndex.follow_ups": followupToPush }}, {safe:true, upsert:true, new: true},function (err, updatedQuestion) {
           if (err) {
             console.log(err);
             res.send(err);
             return;
           }
-          res.json({error: "", id: updatedQuestion.answers[updatedQuestion.answers.length-1]._id});
-          console.log("Added Answer with id " + updatedQuestion.answers[updatedQuestion.answers.length-1]._id);
-        });
-          //res.json(question);
-      });*/
-
-////////////////////////////////////////////
-//      posting follow_ups
-///////////////////////////////////////////
-router.route('/followup')
-    .post(function(req, res) {
-        Question.findById(req.params.answer_id,  function(err, question) {
-
-          // find question by ID, and validate the result.
-          if (!questionExists(req, res, err, question))
-            return;
-
-          // validate post.body and perform few autofix
-          if (!req.body.text) {
-        	    res.json({error:"Question has no text!"});
-        	    return
-        	}
-        	var postImgURL = req.body.imageURL;
-        	if (!postImgURL) {
-        	    postImgURL = "";
-        	}
-          var answerToPush = {text: req.body.text, imageURL: postImgURL};
-
-          // push answerToPush into answers array
-          Question.findByIdAndUpdate(req.params.question_id, { $push: { answers: answerToPush }}, {safe:true, upsert:true, new: true},function (err, updatedQuestion) {
-            if (err) {
-              console.log(err);
-		          res.send(err);
-		          return;
-	          }
-            res.json({error: "", id: updatedQuestion.answers[updatedQuestion.answers.length-1]._id});
-            console.log("Added Answer with id " + updatedQuestion.answers[updatedQuestion.answers.length-1]._id);
-          });
-            //res.json(question);
-        });
-    })
-    .delete(function(req, res) {
-	/// @todo check if user is logged in and owns the question or is admin
-
+          res.json({error: "", id: updatedQuestion.answers[questionIndex].follow_ups[updatedQuestion.answers.follow_ups.length-1]._id});
+          console.log("Added Answer with id " + updatedQuestion.answers[questionIndex].follow_ups[updatedQuestion.answers.follow_ups.length-1]._id);
+        });*/
 
     });
+  })
+  .delete(function(req, res) {
+/// @todo check if user is logged in and owns the question or is admin
+
+
+  });
 
 
 
