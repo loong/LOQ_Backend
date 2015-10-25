@@ -182,71 +182,8 @@ answerRoutes.init(router);
 ////////////////////////////////////////////
 //      posting follow_ups
 ///////////////////////////////////////////
-router.route('/followup')
-  .post(function(req, res) {
-    if (!req.body.id){
-      res.json({error:"non-existant id"});
-      return;
-    }
-    Question.findOne({"answers._id": req.body.id}, function(err, question){
-      if (!questionExists(req, res, err, question))
-        return;
-
-        // validate post.body and perform few autofix
-        if (!req.body.text) {
-            res.json({error:"Question has no text!"});
-            return
-        }
-        var postImgURL = req.body.imageURL;
-        if (!postImgURL) {
-            postImgURL = "";
-        }
-        var followupToPush = {"text": req.body.text, "imageURL": postImgURL}
-
-        var newQuestion = new Question(question);
-        // decide which question to place followup under.
-        //var questionIndex = -1;
-        for (var i=0; i<newQuestion.answers.length; i++) {
-          if (req.body.id==newQuestion.answers[i]._id) {
-            //questionIndex=i;
-            console.log("added followup")
-            //if ()
-            //  newQuestion.answers[i].follow_ups.push(followupToPush);//[newQuestion.answers[i].follow_ups.length]={text: req.body.text, imageURL: postImgURL};
-            //else
-            console.log(newQuestion.answers[i].follow_ups);
-              newQuestion.answers[i].follow_ups[0]="why the hell is this not working";
-            console.log(newQuestion.answers[i].follow_ups[newQuestion.answers[i].follow_ups.length]);
-            break;
-          }
-        }
-        console.log(followupToPush);
-        console.log(newQuestion);
-
-        /*question.save(function(err, savedQuestion) {
-          if (err)
-            console.log(err);
-      		res.send(err);
-      		return;
-        });*/
-        // push answerToPush into answers array
-        /*Question.update({"answers.follow_ups._id": req.body.text}, { $push: { "answers.questionIndex.follow_ups": followupToPush }}, {safe:true, upsert:true, new: true},function (err, updatedQuestion) {
-          if (err) {
-            console.log(err);
-            res.send(err);
-            return;
-          }
-          res.json({error: "", id: updatedQuestion.answers[questionIndex].follow_ups[updatedQuestion.answers.follow_ups.length-1]._id});
-          console.log("Added Answer with id " + updatedQuestion.answers[questionIndex].follow_ups[updatedQuestion.answers.follow_ups.length-1]._id);
-        });*/
-
-    });
-  })
-  .delete(function(req, res) {
-/// @todo check if user is logged in and owns the question or is admin
-
-
-  });
-
+var followupRoutes = require("./routes/followupRoutes.js");
+followupRoutes.init(router);
 
 
 
