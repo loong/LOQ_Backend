@@ -1,30 +1,14 @@
 // refer to Question model (schema)
 var Question = require('../app/models/question');
 
-function questionExists(req, res, err, question) {
-  if (!question) {
-    res.json({
-      error: "Answer with id "
-      + req.params.question_id
-      + " does not exists"
-    });
-    return false;
-  }
-  if (err) {
-    console.log("Error in Get /answer/:id \n" + err);
-    return false;
-  }
-
-  return true;
-
-}
-
 init = function(router){
 
 ////////////////////////////////////////////
 //      /question
 ///////////////////////////////////////////
   router.route('/question')
+
+    // POST req = {room:"", text:"", imageURL:""}
     .post(function(req, res) {
       console.log("\t" + JSON.stringify(req.body));
 
@@ -45,12 +29,14 @@ init = function(router){
     	    imgURL = "";
     	}
 
+      //create a new question to save
       var question = new Question({
   	    text: req.body.text,
   	    imageURL: imgURL,
   	    room: req.body.room.toLowerCase()
       });
 
+      // save question to DB
       question.save(function(err, savedQuestion) {
         if (err) {
           console.log(err);
@@ -62,6 +48,8 @@ init = function(router){
   	    console.log("Added Question with id " + savedQuestion._id);
       });
     })
+
+    // DELETE req = {id:""}
     .delete(function(req, res) {
       /// @todo check if user is logged in and owns the question or is admin
       if (!req.body.id){
@@ -77,6 +65,8 @@ init = function(router){
         res.json({ error: "" });
       });
     })
+
+    // GET
     .get(function(req, res) {
       Question.find(function(err, questions){
         if (err) {

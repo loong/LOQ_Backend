@@ -1,6 +1,7 @@
 // refer to Question model (schema)
 var Question = require('../app/models/question');
 
+// error detection routine. (mainly to reduce redundent code)
 function questionExists(req, res, err, question) {
   if (!question) {
     res.json({
@@ -14,9 +15,7 @@ function questionExists(req, res, err, question) {
     console.log("Error in Get /question/:id \n" + err);
     return false;
   }
-
   return true;
-
 }
 
 init = function(router) {
@@ -24,11 +23,16 @@ init = function(router) {
   //      /answer
   ///////////////////////////////////////////
   router.route('/answer')
+
+    //////////////////////////////////////////////////
+    // POST req = {id: "", text: "", imageURL: ""}
     .post(function(req, res) {
         if (!req.body.id){
           res.json({error:"non-existant id"});
           return;
         }
+
+        // find the question according to question_id
         Question.findById(req.body.id,  function(err, question) {
 
           // find question by ID, and validate the result.
@@ -46,7 +50,7 @@ init = function(router) {
         	}
           var answerToPush = {text: req.body.text, imageURL: postImgURL};
 
-          // push answerToPush into answers array
+          // $push answerToPush into answers array
           Question.findByIdAndUpdate(req.body.id, { $push: { answers: answerToPush }}, {safe:true, upsert:true, new: true},function (err, updatedQuestion) {
             if (err) {
               console.log(err);
@@ -54,92 +58,44 @@ init = function(router) {
 		          return;
 	          }
             res.json({error: "", id: updatedQuestion.answers[updatedQuestion.answers.length-1]._id});
-            console.log("Added Answer with id " + updatedQuestion.answers[updatedQuestion.answers.length-1]._id);
+            //console.log("Added Answer with id " + updatedQuestion.answers[updatedQuestion.answers.length-1]._id);
           });
-            //res.json(question);
         });
     })
-    .delete(function(req, res) {    // in this DELETE, req.params.question_id is the TARGET ID OF ANSWER element
-	/// @todo check if user is logged in and owns the question or is admin
+
+    //////////////////////////////////////////////////
+    // DELETE req = {id: ""}
+    .delete(function(req, res) {
+	// @todo check if user is logged in and owns the question or is admin
       if (!req.body.id){
         res.json({error:"non-existant id"});
         return;
       }
+
+      // find the question object that includes answer_id
       Question.findOne({"answers._id": req.body.id}, function(err, question){
         if (!questionExists(req, res, err, question))
           return;
-        //console.log(question);
-        console.log(req.body.id);
+
+        // loop through the answers array in the question object, and remove the target object from the answers array
         for (var i=0; i<question.answers.length; i++) {
-          console.log(question.answers[i]._id);
           if (req.body.id==question.answers[i]._id) {
-            console.log("splice "+question.answers[i]);
+            //console.log("splice "+question.answers[i]);
             question.answers.splice(i, 1);
             break;
           }
         }
-        //console.log(question);
+
+        // saving question with same mongoObjectID does not create a new object. Instead, existing one gets updated
         question.save(function(err, savedQuestion) {
           if (err)
             console.log(err);
       		res.send({"err": err});
       		return;
         });
-        /*Question.findOneAndUpdate({_id: new ObjectId(question._id)}, { $pull: {answers: {_id: new ObjectId(req.params.question_id)}}}, {safe:true}, function (err, updatedQuestion) {
-          if (err) {
-            console.log(err);
-            res.send(err);
-            return;
-          }
-          console.log(updatedQuestion);
-          res.json({error: ""});
-          console.log("Deleted an item");
-        });
-            //res.json(question);*/
       });
 
     });
-    /*Question.findOneAndUpdate({_id: new ObjectId(question._id)}, { $pull: {answers: {_id: new ObjectId(req.params.question_id)}}}, {safe:true}, function (err, updatedQuestion) {
-      if (err) {
-        console.log(err);
-        res.send(err);
-        return;
-      }
-      console.log(updatedQuestion);
-      res.json({error: ""});
-      console.log("Deleted an item");
-    });
-        //res.json(question);*/
-/*
-      Question.findById(req.params.question_id,  function(err, question) {
-
-        // find question by ID, and validate the result.
-        if (!questionExists(req, res, err, question))
-          return;
-
-        // validate post.body and perform few autofix
-        if (!req.body.text) {
-            res.json({error:"Question has no text!"});
-            return
-        }
-        var postImgURL = req.body.imageURL;
-        if (!postImgURL) {
-            postImgURL = "";
-        }
-        var answerToPush = {text: req.body.text, imageURL: postImgURL};
-
-        // push answerToPush into answers array
-        Question.findByIdAndUpdate(req.params.question_id, { $push: { answers: answerToPush }}, {safe:true, upsert:true, new: true},function (err, updatedQuestion) {
-          if (err) {
-            console.log(err);
-            res.send(err);
-            return;
-          }
-          res.json({error: "", id: updatedQuestion.answers[updatedQuestion.answers.length-1]._id});
-          console.log("Added Answer with id " + updatedQuestion.answers[updatedQuestion.answers.length-1]._id);
-        });
-          //res.json(question);
-      });*/
 }
 
 module.exports.init = init;
