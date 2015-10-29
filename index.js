@@ -69,6 +69,20 @@ router.get('/', function(req, res) {
     res.json({ message: 'Welcome to the API'});
 });
 
+// Add headers
+// http://stackoverflow.com/questions/18310394/no-access-control-allow-origin-node-apache-port-issue
+app.use(function (req, res, next) {
+
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Allow from everywhere
+
+    // Request methods you wish to allow
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+
+    // Pass to next layer of middleware
+    next();
+});
+
 ////////////////////////////////////////////
 //      GET, POST and DELETE answers
 ///////////////////////////////////////////
