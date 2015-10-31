@@ -22,50 +22,41 @@ init = function(router){
 ////////////////////////////////////////////
 //      /followup
 ///////////////////////////////////////////
-  router.route('/followup')
+  router.route('/like')
 
     //////////////////////////////////////////////////
-    // POST req = {id:"", text:"", imageURL:""}
+    // POST req = {id: "", user: ""}
     .post(function(req, res) {
       if (!req.body.id){
         res.json({error:"non-existant id"});
         return;
       }
-
-    res.json({
-      error: " merde "
-      + req.body.id
-      + " does not exists"
-    });
+ 
       // find question object from DB that contains answers._id
-      Question.findOne({"answers._id": req.body.id}, function(err, question){
+      Question.findOne({"_id": req.body.id}, function(err, question){
         if (!questionExists(req, res, err, question))
           return;
 
           // validate post.body and perform few autofix
-          if (!req.body.text) {
-              res.json({error:"Question has no text!"});
+          if (!req.body.user) {
+              res.json({error:"Like come from no user"});
               return
           }
-          var postImgURL = req.body.imageURL;
-          if (!postImgURL) {
-              postImgURL = "";
-          }
-          var followupToPush = {"text": req.body.text, "imageURL": postImgURL}
-
-          // decide which answer array to place followup under.
-          for (var i=0; i<question.answers.length; i++) {
-            if (req.body.id==question.answers[i]._id) {
-              question.answers[i].follow_ups.push(followupToPush);
-              break;
+          
+          //users can not like something twice
+          for (var i=0; i<question.likes.length; i++) {
+            if (req.body.user===question.likes[i]) {
+              res.json({error:"Already like"});
+              return ;
             }
           }
-
+              question.likes.push(req.body.user);
+        
           // save the updated question object back into DB
           question.save(function(err, savedQuestion) {
             if (err)
               console.log(err);
-        		res.send({"err": err});
+        		res.send({"err": err+"    "+question.likes});
         		return;
           });
 
@@ -73,27 +64,23 @@ init = function(router){
     })
 
     //////////////////////////////////////////////////
-    // DELETE req = {id:""}
+    // DELETE req = {question_id = "" , user:""}
     .delete(function(req, res) {
-      /// @todo check if user is logged in and owns the question or is admin
-      if (!req.body.id){
-        res.json({error:"non-existant id"});
+      if (!req.body.user){
+        res.json({error:"non-existant user"});
         return;
       }
 
       // find question object from DB that contains answers.follow_ups._id
-      Question.findOne({"answers.follow_ups._id": req.body.id}, function(err, question){
+      Question.findOne({"question._id": req.body.question_id}, function(err, question){
         if (!questionExists(req, res, err, question))
           return;
 
-        // traverse through all answers and all follow_ups, to find the target element.
-        for (var i=0; i<question.answers.length; i++) {
-          for (var j=0; j<question.answers[i].follow_ups.length; j++) {
-            if (req.body.id==question.answers[i].follow_ups[j]._id) {
-              //console.log("splice "+question.answers[i].follow_ups[j]);
-              question.answers[i].follow_ups.splice(j, 1); // remove from array
-              break;
-            }
+
+        for (var i=0; i<question.likes.length; i++) {
+          if (req.body.user===question.likes[i]) {
+            question.likes.splice(i, 1); // remove from array
+            break;
           }
         }
 

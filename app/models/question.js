@@ -3,10 +3,13 @@ var Schema = mongoose.Schema;
 
 var QuestionSchema = new Schema({
 	userId: Number,
+	userName : String,
 	text: String,
         room: String,
 	imageURL: String,
 	time: {type: Date, default: Date.now},
+	//likes = list of persons who like the questions
+	likes : [String],
 	answers: [{
 		id: Number,
 		userId: Number,

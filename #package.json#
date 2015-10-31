@@ -1,0 +1,29 @@
+{
+  "name": "node-js-sample",
+  "version": "0.2.0",
+  "description": "A sample Node.js app using Express 4",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "body-parser": "~1.0.1",
+    "express": "~4.10.2",
+    "mongodb-uri": "^0.9.7",
+    "mongoose": "~3.8",
+    "multer": "~0.1.6",
+    "cloudinary": "1.2.5"
+  },
+  "engines": {
+    "node": "4.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heroku/questionsBackend"
+  },
+  "keywords": [
+    "node",
+    "heroku",
+    "express"
+  ]
+}

@@ -87,6 +87,12 @@ answerRoutes.init(router);
 var followupRoutes = require("./routes/followupRoutes.js");
 followupRoutes.init(router);
 
+////////////////////////////////////////////
+//      POST and DELETE likes
+///////////////////////////////////////////
+var likeRoutes = require("./routes/likesRoutes.js");
+likeRoutes.init(router);
+
 
 
 // root to /api/v1
