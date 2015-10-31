@@ -62,6 +62,7 @@ var router = express.Router();
 //middleware for any pre-processing of requests (sanitising?)
 router.use(function(req, res, next) {
     console.log("Processing REST API request");
+    res.header("Access-Control-Allow-Headers", "*");
     next();
 });
 
