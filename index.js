@@ -62,7 +62,6 @@ var router = express.Router();
 //middleware for any pre-processing of requests (sanitising?)
 router.use(function(req, res, next) {
     console.log("Processing REST API request");
-    res.header("Access-Control-Allow-Headers", "*");
     next();
 });
 
@@ -79,6 +78,8 @@ app.use(function (req, res, next) {
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+
+    res.setHeader("Access-Control-Allow-Headers", "*");
 
     // Pass to next layer of middleware
     next();
