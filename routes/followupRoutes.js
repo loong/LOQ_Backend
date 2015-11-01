@@ -60,7 +60,7 @@ init = function(router){
           question.save(function(err, savedQuestion) {
             if (err)
               console.log(err);
-        		res.send({"err": err});
+        		res.send({error: err});
         		return;
           });
 
@@ -96,7 +96,7 @@ init = function(router){
         question.save(function(err, savedQuestion) {
           if (err)
             console.log(err);
-          res.send({"err": err});
+          res.send({error: err});
           return;
         });
       });
