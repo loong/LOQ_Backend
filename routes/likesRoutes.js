@@ -54,10 +54,10 @@ init = function(router){
         
           // save the updated question object back into DB
           question.save(function(err, savedQuestion) {
-            if (err)
+            if (!err)
               console.log(err);
-        		res.send({"err": err+"    "+question.likes});
-        		return;
+              res.send({"error": err+"    "+question.likes});
+              return;
           });
 
       });
