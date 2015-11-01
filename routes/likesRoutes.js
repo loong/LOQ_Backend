@@ -54,10 +54,11 @@ init = function(router){
         
           // save the updated question object back into DB
           question.save(function(err, savedQuestion) {
-            if (!err)
-              console.log(err);
-              res.send({"error": err+"    "+question.likes});
-              return;
+            if (err) {
+		console.log(err);
+		res.send({"error": err+"    "+question.likes});
+		return;
+	    }
           });
 
       });
@@ -86,10 +87,10 @@ init = function(router){
 
         // save the updated question back into DB
         question.save(function(err, savedQuestion) {
-          if (err)
-            console.log(err);
-          res.send({"err": err});
-          return;
+            if (err) {
+		console.log(err);
+		res.send({"error": err});
+	    }
         });
       });
 
