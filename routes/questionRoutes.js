@@ -8,7 +8,7 @@ init = function(router){
 ///////////////////////////////////////////
   router.route('/question')
 
-    // POST req = {room:"", text:"", imageURL:""}
+    // POST req = {userName="", room:"", text:"", imageURL:""}
     .post(function(req, res) {
       console.log("\t" + JSON.stringify(req.body));
 
@@ -16,6 +16,11 @@ init = function(router){
 
     	if (!req.body.text) {
     	    res.json({error:"Question has no text!"});
+    	    return
+    	}
+      
+      if (!req.body.text) {
+    	    res.json({error:"Question has no userName!"});
     	    return
     	}
 
@@ -32,6 +37,7 @@ init = function(router){
       //create a new question to save
       var question = new Question({
   	    text: req.body.text,
+        username: req.body.username,
   	    imageURL: imgURL,
   	    room: req.body.room.toLowerCase()
       });

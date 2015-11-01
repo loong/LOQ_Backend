@@ -32,6 +32,11 @@ init = function(router){
         return;
       }
 
+    res.json({
+      error: " merde "
+      + req.body.id
+      + " does not exists"
+    });
       // find question object from DB that contains answers._id
       Question.findOne({"answers._id": req.body.id}, function(err, question){
         if (!questionExists(req, res, err, question))
