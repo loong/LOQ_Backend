@@ -89,8 +89,11 @@ init = function(router) {
         // saving question with same mongoObjectID does not create a new object. Instead, existing one gets updated
         question.save(function(err, savedQuestion) {
           if (err)
+          {
             console.log(err);
-      		res.send({"err": err});
+        		res.send({"error": err});
+          }
+          res.send({"error":""});
       		return;
         });
       });

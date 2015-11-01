@@ -47,20 +47,27 @@ init = function(router){
               postImgURL = "";
           }
           var followupToPush = {"text": req.body.text, "imageURL": postImgURL}
+          var updatedAnswerIndex = -1;
 
           // decide which answer array to place followup under.
           for (var i=0; i<question.answers.length; i++) {
             if (req.body.id==question.answers[i]._id) {
+              updatedAnswerIndex = i;
               question.answers[i].follow_ups.push(followupToPush);;
               break;
             }
           }
 
           // save the updated question object back into DB
-          question.save(function(err, savedQuestion) {
+          question.save(function(err, updatedQuestion) {
             if (err)
+            {
               console.log(err);
-        		res.send({error: err});
+              res.send({error: err});
+            }
+            else {
+              res.send({error: "", id: updatedQuestion.answers[updatedAnswerIndex].follow_ups[updatedQuestion.answers[updatedAnswerIndex].follow_ups.length-1]._id});
+            }
         		return;
           });
 
@@ -95,8 +102,13 @@ init = function(router){
         // save the updated question back into DB
         question.save(function(err, savedQuestion) {
           if (err)
+          {
             console.log(err);
-          res.send({error: err});
+            res.send({error: err});
+          }
+          else {
+            res.send({error: ""});
+          }
           return;
         });
       });
