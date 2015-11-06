@@ -18,7 +18,7 @@ init = function(router){
     	    res.json({error:"Question has no text!"});
     	    return
     	}
-      
+
       if (!req.body.text) {
     	    res.json({error:"Question has no userName!"});
     	    return

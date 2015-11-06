@@ -109,7 +109,11 @@ followupRoutes.init(router);
 var likeRoutes = require("./routes/likesRoutes.js");
 likeRoutes.init(router);
 
-
+///////////////////////////////////////////
+//      Account system
+///////////////////////////////////////////
+var accountRoutes = require("./routes/accountRoutes.js");
+accountRoutes.init(router);
 
 // root to /api/v1
 app.use('/api/v1', router);
