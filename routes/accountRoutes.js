@@ -1,5 +1,5 @@
 var Account = require('../app/models/account');
-//var bcrypt = require('bcrypt');
+var bcrypt = require('bcrypt-nodejs');
 
 init = function(router) {
   ////////////////////////////////////////////
@@ -30,8 +30,8 @@ init = function(router) {
       	    return;
       	}
 
-        //var salt = bcrypt.genSaltSync(10);
-        //var hashedPassword = bcrypt.hashSync(req.body.password, salt);
+        var salt = bcrypt.genSaltSync(10);
+        var hashedPassword = bcrypt.hashSync(req.body.password, salt);
         //console.log(hashedPassword);
         //console.log(bcrypt.compareSync("12345678", hashedPassword)); // true  // for password verification
         //bcrypt.compareSync('not_bacon', hash); // false
@@ -68,7 +68,7 @@ init = function(router) {
       	    userId: maxIntegerId,
             username: req.body.username,
       	    email: req.body.email,
-      	    password: req.body.password,
+      	    password: hashedPassword,
             experience: 0,
             mark_deleted: false
           });
