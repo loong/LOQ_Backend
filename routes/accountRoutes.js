@@ -1,5 +1,6 @@
 var Account = require('../app/models/account');
 var bcrypt = require('bcrypt-nodejs');
+var session = require('client-sessions');
 
 init = function(router) {
   ////////////////////////////////////////////
@@ -80,25 +81,21 @@ init = function(router) {
       		    res.send(err);
       		    return;
             }
-
+            
+            req.session.username = req.body.username;
+            console.log("Set session Id:" + req.session.username);
+            
             res.json({error: "", id: savedAccount.userId});
       	    console.log("Registered Account with id " + savedAccount.userId);
           });
+
         });
 
 
     })
     router.route('/account/session')
       .get(function(req, res) {
-        /*Account.find(function(err, accounts){
-          if (err) {
-            console.log(err);
-            res.send(err);
-            return;
-          }
 
-          res.json(accounts);
-        });*/
       });
 
     router.route('/account/all')

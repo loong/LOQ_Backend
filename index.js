@@ -13,6 +13,7 @@
 
 var express = require('express');
 var app = express();
+var session = require('client-sessions');
 
 var port = process.env.PORT || 8080;
 var mongodbUri = process.env.MONGOLAB_URI || "mongodb://heroku_ms37k84v:qc3nsje0ljjuq2vbjtugnkj6fh@ds041150.mongolab.com:41150/heroku_ms37k84v";
@@ -84,6 +85,15 @@ app.use(function (req, res, next) {
     // Pass to next layer of middleware
     next();
 });
+
+
+// Add session middleware
+app.use(session({
+  cookieName: 'session',
+  secret: 'a',
+  duration: 30 * 60 * 1000,
+  activeDuration: 5 * 60 * 1000,
+}));
 
 ////////////////////////////////////////////
 //      GET, POST and DELETE answers

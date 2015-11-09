@@ -13,7 +13,8 @@
     "mongoose": "~3.8",
     "multer": "~0.1.6",
     "cloudinary": "1.2.5",
-    "bcrypt-nodejs": "0.0.3"
+    "bcrypt-nodejs": "0.0.3",
+    "client-sessions": "0.7.0"
   },
   "engines": {
     "node": "4.0.0"
