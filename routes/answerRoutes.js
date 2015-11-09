@@ -32,10 +32,11 @@ init = function(router) {
           return;
         }
         // checks if user is logged in
-        if (!req.session.userId) {
+        // TODO: please uncomment this part once front-end is ready
+        /*if (!req.session.userId) {
           res.json({error:"please login to post answer"});
           return;
-        }
+        }*/
         // find the question according to question_id
         Question.findById(req.body.id,  function(err, question) {
 

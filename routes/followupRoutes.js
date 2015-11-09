@@ -33,10 +33,12 @@ init = function(router){
       }
 
       // checks if user is logged in
+      // TODO: uncomment this part once front-end is ready
+      /*
       if (!req.session.userId) {
         res.json({error:"please login to post question"});
         return;
-      }
+      }*/
 
     res.json({
       error: " merde "

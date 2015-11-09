@@ -12,10 +12,11 @@ init = function(router){
     .post(function(req, res) {
       console.log("\t" + JSON.stringify(req.body));
       // checks if user is logged in
-      if (!req.session.userId) {
+      // TODO: uncomment this part once front-end is ready
+      /*if (!req.session.userId) {
         res.json({error:"please login to post question"});
         return;
-      }
+      }*/
     	if (!req.body.text) {
     	    res.json({error:"Question has no text!"});
     	    return
@@ -39,7 +40,7 @@ init = function(router){
       //create a new question to save
       var question = new Question({
   	    text: req.body.text,
-        userId: req.session.userId,
+        //userId: req.session.userId,   // TODO: uncomment this part when front-end is ready
   	    imageURL: imgURL,
   	    room: req.body.room.toLowerCase()
       });
