@@ -11,9 +11,11 @@ init = function(router){
     // POST req = {userName="", room:"", text:"", imageURL:""}
     .post(function(req, res) {
       console.log("\t" + JSON.stringify(req.body));
-
-  	  /// @todo check if user is logged in
-
+      // checks if user is logged in
+      if (!req.session.userId) {
+        res.json({error:"please login to post question"});
+        return;
+      }
     	if (!req.body.text) {
     	    res.json({error:"Question has no text!"});
     	    return
@@ -37,7 +39,7 @@ init = function(router){
       //create a new question to save
       var question = new Question({
   	    text: req.body.text,
-        username: req.body.username,
+        userId: req.session.userId,
   	    imageURL: imgURL,
   	    room: req.body.room.toLowerCase()
       });
@@ -55,9 +57,14 @@ init = function(router){
       });
     })
 
+    // TODO : delete should be secure
     // DELETE req = {id:""}
     .delete(function(req, res) {
       /// @todo check if user is logged in and owns the question or is admin
+      if (!req.session.type || req.session.type!=="admin") {
+        res.json({error:"only admin can delete"});
+        return;
+      }
       if (!req.body.id){
         res.json({error:"non-existant id"});
         return;

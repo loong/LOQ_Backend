@@ -28,10 +28,14 @@ init = function(router) {
     // POST req = {id: "", text: "", imageURL: ""}
     .post(function(req, res) {
         if (!req.body.id){
-          res.json({error:"non-existant id"});
+          res.json({error:"non-existant question id"});
           return;
         }
-
+        // checks if user is logged in
+        if (!req.session.userId) {
+          res.json({error:"please login to post answer"});
+          return;
+        }
         // find the question according to question_id
         Question.findById(req.body.id,  function(err, question) {
 
@@ -68,7 +72,11 @@ init = function(router) {
     .delete(function(req, res) {
 	// @todo check if user is logged in and owns the question or is admin
       if (!req.body.id){
-        res.json({error:"non-existant id"});
+        res.json({error:"non-existant answer id"});
+        return;
+      }
+      if (!req.session.type || req.session.type!=="admin") {
+        res.json({error:"only admin can delete"});
         return;
       }
 

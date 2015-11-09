@@ -68,6 +68,7 @@ init = function(router) {
           var account = new Account({
       	    userId: maxIntegerId,
             username: req.body.username,
+            type: "user",       // TODO: implement admin later somehow
       	    email: req.body.email,
       	    password: hashedPassword,
             experience: 0,
@@ -83,9 +84,11 @@ init = function(router) {
             }
 
             req.session.email = req.body.email;
-            console.log("Set session email: " + req.session.email);
+            req.session.userId = savedAccount.userId;
+            req.session.type = savedAccount.type;
+            console.log("Set session email and ID: " + req.session.email + " " + req.session.userId);
 
-            res.json({error: "", id: savedAccount.userId});
+            res.json({error:"", session: req.session.userId});
       	    console.log("Registered Account with id " + savedAccount.userId);
           });
 
@@ -114,9 +117,11 @@ init = function(router) {
           }
 
           req.session.email = req.body.email;
-          console.log("Set session email: " + req.session.email);
+          req.session.userId = account[0].userId;
+          req.session.type = account[0].type;
+          console.log("Set session email and ID: " + req.session.email + " " + req.session.userId);
 
-          res.json({error:"", session: req.session.email});
+          res.json({error:"", session: req.session.userId});
         });
 
 
