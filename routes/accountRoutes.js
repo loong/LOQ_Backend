@@ -81,10 +81,10 @@ init = function(router) {
       		    res.send(err);
       		    return;
             }
-            
-            req.session.username = req.body.username;
-            console.log("Set session Id:" + req.session.username);
-            
+
+            req.session.email = req.body.email;
+            console.log("Set session email: " + req.session.email);
+
             res.json({error: "", id: savedAccount.userId});
       	    console.log("Registered Account with id " + savedAccount.userId);
           });
@@ -93,9 +93,56 @@ init = function(router) {
 
 
     })
+
+    // verifies login credentials and sets session for that account
+    router.route('/account/login')
+      .post(function(req, res) {
+        // find account that matches email
+        Account.find({email: req.body.email}, function (err, account) {
+          if (err) {
+            res.send(err);
+            return;
+          }
+          if (account.length>1)
+          {
+            console.log("wtf this is not supposed to happen");
+          }
+          // verify password
+          if (!bcrypt.compareSync(req.body.password, account[0].password))
+          {
+            res.json({error:"invalid password", session: ""});
+          }
+
+          req.session.email = req.body.email;
+          console.log("Set session email: " + req.session.email);
+
+          res.json({error:"", session: req.session.email});
+        });
+
+
+      });
+
+    // destroy session
+    router.route('/account/logout')
+      .get(function(req, res) {
+/*        req.session.destroy(function(error) {
+          if (error !== null) {
+            console.log("cannot destroy session: " + error);
+            res.json({error:"cannot destroy session: "+error});
+          } else {
+            console.log("Session destroyed");
+            res.json({error:""});
+          }
+        });
+*/
+        req.session.destroy();
+        res.json({error:""});
+      });
+
+    // just for test, returns req.session
     router.route('/account/session')
       .get(function(req, res) {
-
+        res.send(req.session);
       });
 
     router.route('/account/all')
