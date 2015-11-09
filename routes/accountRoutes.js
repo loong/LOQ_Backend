@@ -88,7 +88,18 @@ init = function(router) {
 
 
     })
+    router.route('/account/session')
+      .get(function(req, res) {
+        /*Account.find(function(err, accounts){
+          if (err) {
+            console.log(err);
+            res.send(err);
+            return;
+          }
 
+          res.json(accounts);
+        });*/
+      });
 
     router.route('/account/all')
       // GET
