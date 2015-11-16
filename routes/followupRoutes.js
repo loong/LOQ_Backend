@@ -34,17 +34,18 @@ init = function(router){
 
       // checks if user is logged in
       // TODO: uncomment this part once front-end is ready
-      /*
+
       if (!req.session.userId) {
         res.json({error:"please login to post question"});
         return;
-      }*/
+      }
 
-    res.json({
+      // what is this?
+    /*res.json({
       error: " merde "
       + req.body.id
       + " does not exists"
-    });
+    });*/
       // find question object from DB that contains answers._id
       Question.findOne({"answers._id": req.body.id}, function(err, question){
         if (!questionExists(req, res, err, question))
@@ -59,7 +60,7 @@ init = function(router){
           if (!postImgURL) {
               postImgURL = "";
           }
-          var followupToPush = {"text": req.body.text, "imageURL": postImgURL}
+          var followupToPush = {"text": req.body.text, "imageURL": postImgURL, userId: req.session.userId};
           var updatedAnswerIndex = -1;
 
           // decide which answer array to place followup under.
