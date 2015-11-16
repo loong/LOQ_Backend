@@ -79,7 +79,7 @@ init = function(router) {
           account.save(function(err, savedAccount) {
             if (err) {
               console.log(err);
-      		    res.send(err);
+      		    res.json({error:err});
       		    return;
             }
 
@@ -103,7 +103,12 @@ init = function(router) {
         // find account that matches email
         Account.find({email: req.body.email}, function (err, account) {
           if (err) {
-            res.send(err);
+            res.json({error:err});
+            return;
+          }
+          if (account.length<1)
+          {
+            res.json({error:"invalid username"});
             return;
           }
           if (account.length>1)
@@ -114,6 +119,7 @@ init = function(router) {
           if (!bcrypt.compareSync(req.body.password, account[0].password))
           {
             res.json({error:"invalid password", session: ""});
+            return;
           }
 
           req.session.email = req.body.email;
