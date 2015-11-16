@@ -88,7 +88,7 @@ init = function(router) {
             req.session.type = savedAccount.type;
             console.log("Set session email and ID: " + req.session.email + " " + req.session.userId);
 
-            res.json({error:"", session: req.session.userId});
+            res.json({error:"", userId: req.session.userId});
       	    console.log("Registered Account with id " + savedAccount.userId);
           });
 
@@ -118,7 +118,7 @@ init = function(router) {
           // verify password
           if (!bcrypt.compareSync(req.body.password, account[0].password))
           {
-            res.json({error:"invalid password", session: ""});
+            res.json({error:"invalid password", userId: ""});
             return;
           }
 
