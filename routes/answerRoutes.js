@@ -33,10 +33,10 @@ init = function(router) {
         }
         // checks if user is logged in
         // TODO: please uncomment this part once front-end is ready
-        /*if (!req.session.userId) {
+        if (!req.session.userId) {
           res.json({error:"please login to post answer"});
           return;
-        }*/
+        }
         // find the question according to question_id
         Question.findById(req.body.id,  function(err, question) {
 
@@ -53,7 +53,7 @@ init = function(router) {
         	if (!postImgURL) {
         	    postImgURL = "";
         	}
-          var answerToPush = {text: req.body.text, imageURL: postImgURL};
+          var answerToPush = {text: req.body.text, imageURL: postImgURL, userId: req.session.userId};
 
           // $push answerToPush into answers array
           Question.findByIdAndUpdate(req.body.id, { $push: { answers: answerToPush }}, {safe:true, upsert:true, new: true},function (err, updatedQuestion) {

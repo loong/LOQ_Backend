@@ -13,17 +13,12 @@ init = function(router){
       console.log("\t" + JSON.stringify(req.body));
       // checks if user is logged in
       // TODO: uncomment this part once front-end is ready
-      /*if (!req.session.userId) {
+      if (!req.session.userId) {
         res.json({error:"please login to post question"});
         return;
-      }*/
+      }
     	if (!req.body.text) {
     	    res.json({error:"Question has no text!"});
-    	    return
-    	}
-
-      if (!req.body.text) {
-    	    res.json({error:"Question has no userName!"});
     	    return
     	}
 
@@ -40,7 +35,7 @@ init = function(router){
       //create a new question to save
       var question = new Question({
   	    text: req.body.text,
-        //userId: req.session.userId,   // TODO: uncomment this part when front-end is ready
+        userId: req.session.userId,   // TODO: uncomment this part when front-end is ready
   	    imageURL: imgURL,
   	    room: req.body.room.toLowerCase()
       });
@@ -88,7 +83,17 @@ init = function(router){
           res.send(err);
   		    return;
   	    }
-
+        //TODO get all accounts here
+        //TODO loop through all questions, answer and follow_ups, and append appropriate username and experience on top of them
+        /*for (var i=0; i<question.answers.length; i++) {
+          for (var j=0; j<question.answers[i].follow_ups.length; j++) {
+            if (req.body.id==question.answers[i].follow_ups[j]._id) {
+              //console.log("splice "+question.answers[i].follow_ups[j]);
+              question.answers[i].follow_ups.splice(j, 1); // remove from array
+              break;
+            }
+          }
+        }*/
         res.json(questions);
       });
     });
