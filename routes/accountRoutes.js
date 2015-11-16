@@ -72,6 +72,7 @@ init = function(router) {
       	    email: req.body.email,
       	    password: hashedPassword,
             experience: 0,
+            jailed: false,
             mark_deleted: false
           });
 

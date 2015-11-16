@@ -8,6 +8,7 @@ var AccountSchema = new Schema({
 	email : String,
 	password : String,
 	experience : Number,
+	jailed : Boolean,
 	mark_deleted : Boolean
 });
 
