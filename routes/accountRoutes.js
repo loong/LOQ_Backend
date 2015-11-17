@@ -119,7 +119,7 @@ init = function(router) {
           // verify password
           if (!bcrypt.compareSync(req.body.password, account[0].password))
           {
-            res.json({error:"invalid password", userId: ""});
+            res.json({error:"invalid password"});
             return;
           }
 
@@ -128,7 +128,7 @@ init = function(router) {
           req.session.type = account[0].type;
           console.log("Set session email and ID: " + req.session.email + " " + req.session.userId);
 
-          res.json({error:"", session: req.session.userId});
+          res.json({error:"", userId: req.session.userId});
         });
 
 
