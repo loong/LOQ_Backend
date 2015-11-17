@@ -24,15 +24,25 @@ init = function(router){
 ///////////////////////////////////////////
   router.route('/question')
 
-    // POST req = {userName="", room:"", text:"", imageURL:""}
+    // POST req = {userName="", room:"", text:"", imageURL:"", (userId:13)}
     .post(function(req, res) {
       console.log("\t" + JSON.stringify(req.body));
       // checks if user is logged in
       // TODO: uncomment this part once front-end is ready
-      if (!req.session.userId) {
+
+      // either get userId from session header, or body
+      var userIdOnPost;
+      if (!req.body.userId && !req.session.userId) {
         res.json({error:"please login to post question"});
         return;
       }
+      if (req.body.userId) {
+        userIdOnPost = req.body.userId;
+      }
+      else {
+        userIdOnPost = req.session.userId;
+      }
+
     	if (!req.body.text) {
     	    res.json({error:"Question has no text!"});
     	    return
@@ -51,7 +61,7 @@ init = function(router){
       //create a new question to save
       var question = new Question({
   	    text: req.body.text,
-        userId: req.session.userId,   // TODO: uncomment this part when front-end is ready
+        userId: userIdOnPost,   // TODO: uncomment this part when front-end is ready
   	    imageURL: imgURL,
   	    room: req.body.room.toLowerCase()
       });

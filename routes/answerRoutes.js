@@ -31,12 +31,20 @@ init = function(router) {
           res.json({error:"non-existant question id"});
           return;
         }
+
         // checks if user is logged in
-        // TODO: please uncomment this part once front-end is ready
-        if (!req.session.userId) {
-          res.json({error:"please login to post answer"});
+        var userIdOnPost;
+        if (!req.body.userId && !req.session.userId) {
+          res.json({error:"please login to post question"});
           return;
         }
+        if (req.body.userId) {
+          userIdOnPost = req.body.userId;
+        }
+        else {
+          userIdOnPost = req.session.userId;
+        }
+
         // find the question according to question_id
         Question.findById(req.body.id,  function(err, question) {
 
@@ -53,7 +61,7 @@ init = function(router) {
         	if (!postImgURL) {
         	    postImgURL = "";
         	}
-          var answerToPush = {text: req.body.text, imageURL: postImgURL, userId: req.session.userId};
+          var answerToPush = {text: req.body.text, imageURL: postImgURL, userId: userIdOnPost};
 
           // $push answerToPush into answers array
           Question.findByIdAndUpdate(req.body.id, { $push: { answers: answerToPush }}, {safe:true, upsert:true, new: true},function (err, updatedQuestion) {
