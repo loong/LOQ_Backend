@@ -5,6 +5,7 @@
 /// @author Amogh Sarda
 /// @author Hong Joon Choi
 /// @author Long Hoang <long@mindworker.de>
+/// @author Matthieu Devaux
 ///
 //////////////////////////////////////////////////////////////////////
 

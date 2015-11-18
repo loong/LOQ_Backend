@@ -1,5 +1,6 @@
 // refer to Question model (schema)
 var Question = require('../app/models/question');
+var Account = require('../app/models/account');
 
 // error detection routine. (mainly to reduce redundent code)
 function questionExists(req, res, err, question) {
@@ -25,7 +26,7 @@ init = function(router) {
   router.route('/answer')
 
     //////////////////////////////////////////////////
-    // POST req = {id: "", text: "", imageURL: ""}
+    // POST req = {id: "", text: "", imageURL: "" (, userId: 11)}
     .post(function(req, res) {
         if (!req.body.id){
           res.json({error:"non-existant question id"});
@@ -70,7 +71,10 @@ init = function(router) {
 		          res.send(err);
 		          return;
 	          }
-            res.json({error: "", id: updatedQuestion.answers[updatedQuestion.answers.length-1]._id});
+	      
+	      // Add Exp
+	      Account.AddExp(answerToPush.userId, 10);
+              res.json({error: "", id: updatedQuestion.answers[updatedQuestion.answers.length-1]._id});
             //console.log("Added Answer with id " + updatedQuestion.answers[updatedQuestion.answers.length-1]._id);
           });
         });
