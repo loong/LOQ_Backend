@@ -17,13 +17,15 @@ var QuestionSchema = new Schema({
 		text: String,
 		time: {type: Date, default: Date.now},
 		imageURL: String,
+		likes : [Number],
 		follow_ups: [{
 			id: Number,
 			userId: Number,
 			username : String, experience : Number, acctType : String, jailed: Boolean,// only appended on GET /questions
 			text: String,
 			time: {type: Date, default: Date.now},
-			imageURL: String
+			imageURL: String,
+			likes : [Number]
 		}]
 	}]
 });
