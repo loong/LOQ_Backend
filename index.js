@@ -119,6 +119,18 @@ followupRoutes.init(router);
 var likeRoutes = require("./routes/likesRoutes.js");
 likeRoutes.init(router);
 
+////////////////////////////////////////////
+//      POST and DELETE answerLikes
+///////////////////////////////////////////
+var likeRoutes = require("./routes/answerLikeRoutes.js");
+likeRoutes.init(router);
+
+////////////////////////////////////////////
+//      POST and DELETE follow_upsLikes
+///////////////////////////////////////////
+var likeRoutes = require("./routes/followupLikeRoutes.js");
+likeRoutes.init(router);
+
 ///////////////////////////////////////////
 //      Account system
 ///////////////////////////////////////////
