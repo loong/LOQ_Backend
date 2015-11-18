@@ -22,7 +22,7 @@ init = function(router){
 ////////////////////////////////////////////
 //      /followupLikes
 ///////////////////////////////////////////
-  router.route('/followupLikesRoutes')
+  router.route('/followupLikeRoutes')
 
     //////////////////////////////////////////////////
     // POST req = {id: "", user: ""}
@@ -48,7 +48,7 @@ init = function(router){
           //users can not like something twice
           for (var i=0; i<question.answers.length; i++) {
              for (var n=0; n<question.answers[n].follow_ups.length; n++) {
-               if ( question.answers[n].follow_ups.id == res.body.id ) {
+               if ( question.answers[i].follow_ups[n].id == res.body.id ) {
                  for ( var j=0 ; j < question.answers[i].follow_ups[n].likes.length ; j++) {
                   if (req.body.user===question.answer[i].follow_ups[n].likes[j]) {
                      res.json({error:"Already like"});
