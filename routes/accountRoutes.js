@@ -98,41 +98,41 @@ init = function(router) {
 
     })
 
-    // verifies login credentials and sets session for that account
-    router.route('/account/login')
-      .post(function(req, res) {
-        // find account that matches email
-        Account.find({email: req.body.email}, function (err, account) {
-          if (err) {
-            res.json({error:err});
-            return;
-          }
-          if (account.length<1)
-          {
-            res.json({error:"invalid username"});
-            return;
-          }
-          if (account.length>1)
-          {
-            console.log("wtf this is not supposed to happen");
-          }
-          // verify password
-          if (!bcrypt.compareSync(req.body.password, account[0].password))
-          {
-            res.json({error:"invalid password"});
-            return;
-          }
+  // verifies login credentials and sets session for that account
+  router.route('/account/login')
+    .post(function(req, res) {
+      // find account that matches email
+      Account.find({email: req.body.email}, function (err, account) {
+        if (err) {
+          res.json({error:err});
+          return;
+        }
+        if (account.length<1)
+        {
+          res.json({error:"invalid username"});
+          return;
+        }
+        if (account.length>1)
+        {
+          console.log("wtf this is not supposed to happen");
+        }
+        // verify password
+        if (!bcrypt.compareSync(req.body.password, account[0].password))
+        {
+          res.json({error:"invalid password"});
+          return;
+        }
 
-          req.session.email = req.body.email;
-          req.session.userId = account[0].userId;
-          req.session.type = account[0].type;
-          console.log("Set session email and ID: " + req.session.email + " " + req.session.userId);
+        req.session.email = req.body.email;
+        req.session.userId = account[0].userId;
+        req.session.type = account[0].type;
+        console.log("Set session email and ID: " + req.session.email + " " + req.session.userId);
 
-          res.json({error:"", userId: req.session.userId});
-        });
-
-
+        res.json({error:"", userId: req.session.userId});
       });
+
+
+    });
 
     // destroy session
     router.route('/account/logout')
@@ -151,25 +151,55 @@ init = function(router) {
         res.json({error:""});
       });
 
-    // just for test, returns req.session
-    router.route('/account/session')
-      .get(function(req, res) {
-        res.send(req.session);
+  // just for test, returns req.session
+  router.route('/account/session')
+    .get(function(req, res) {
+      res.send(req.session);
+    });
+
+  router.route('/account/all')
+    // GET
+    .get(function(req, res) {
+      Account.find(function(err, accounts){
+        if (err) {
+          console.log(err);
+          res.send(err);
+  		    return;
+  	    }
+
+        res.json(accounts);
       });
+    });
 
-    router.route('/account/all')
-      // GET
-      .get(function(req, res) {
-        Account.find(function(err, accounts){
-          if (err) {
-            console.log(err);
-            res.send(err);
-    		    return;
-    	    }
+  router.route('/account/:account_id')
+    .get(function(req, res) {
+      Account.findOne({"userId": req.params.account_id}, function(err, account) {
 
-          res.json(accounts);
+  	    if (err) {
+  		    console.log("Error in Get /account/:id \n" + err);
+  	    }
+
+  	    if (!account) {
+      		res.json({
+      		    error: "Account with id "
+      			+ req.params.account_id
+      			+ " does not exist"
+    		  });
+  		    return;
+  	    }
+
+        res.json({
+          userId: account.userId,
+          username: account.username,
+          type: account.type,
+          email: account.email,
+          password: account.password,
+          experience: account.experience,
+          jailed: account.jailed
+
         });
       });
+    });
 }
 
 module.exports.init = init;
