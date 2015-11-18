@@ -128,6 +128,9 @@ init = function(router) {
         req.session.type = account[0].type;
         console.log("Set session email and ID: " + req.session.email + " " + req.session.userId);
 
+	// Add Exp
+	Account.AddExp(req.session.userId, 10);
+
         res.json({error:"", userId: req.session.userId});
       });
 

@@ -29,7 +29,8 @@ init = function(router){
       console.log("\t" + JSON.stringify(req.body));
       // checks if user is logged in
       // TODO: uncomment this part once front-end is ready
-
+      // TODO: make sure experience point is added to the right userID below
+ 
       // either get userId from session header, or body
       var userIdOnPost;
       if (!req.body.userId && !req.session.userId) {
@@ -73,6 +74,10 @@ init = function(router){
   		    res.send(err);
   		    return
         }
+
+	// Add Exp
+	console.log("UserId" + savedQuestion.userId);
+	Account.AddExp(savedQuestion.userId, 10);
 
         res.json({error: "", id: savedQuestion._id});
   	    console.log("Added Question with id " + savedQuestion._id);

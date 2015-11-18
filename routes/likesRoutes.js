@@ -1,5 +1,7 @@
 // refer to Question model (schema)
 var Question = require('../app/models/question');
+var Account = require('../app/models/account');
+//var Helper = require('./helper');
 
 // error detection routine. (mainly to reduce redundent code)
 function questionExists(req, res, err, question) {
@@ -47,10 +49,14 @@ init = function(router){
           for (var i=0; i<question.likes.length; i++) {
             if (req.body.user===question.likes[i]) {
               res.json({error:"Already like"});
-              return ;
+              return;
             }
           }
-              question.likes.push(req.body.user);
+          
+	  question.likes.push(req.body.user);
+	  
+	  // add exp
+	  Account.AddExp(question.userId, 20);
         
           // save the updated question object back into DB
           question.save(function(err, savedQuestion) {
@@ -59,6 +65,8 @@ init = function(router){
 		res.send({"error": err+"    "+question.likes});
 		return;
 	    }
+
+	      res.send({error: ""});
           });
 
       });
@@ -77,13 +85,15 @@ init = function(router){
         if (!questionExists(req, res, err, question))
           return;
 
-
         for (var i=0; i<question.likes.length; i++) {
           if (req.body.user===question.likes[i]) {
             question.likes.splice(i, 1); // remove from array
             break;
           }
         }
+
+	// remove gained experience points
+	Account.AddExp(question.userId, -20);
 
         // save the updated question back into DB
         question.save(function(err, savedQuestion) {
