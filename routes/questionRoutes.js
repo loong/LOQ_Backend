@@ -1,5 +1,21 @@
 // refer to Question model (schema)
 var Question = require('../app/models/question');
+var Account = require('../app/models/account');
+
+// helper function for getting questions: append exp and username to the given question
+function findAccountAndAppend(accounts, question)  // could be questions, answers, or followups
+{
+  for (var i=0; i<accounts.length; ++i)
+  {
+    if (question.userId && question.userId===accounts[i].userId)
+    {
+      question.username = accounts[i].username;
+      question.experience = accounts[i].experience;
+      question.acctType = accounts[i].type;
+      question.jailed = accounts[i].jailed;
+    }
+  }
+}
 
 init = function(router){
 
@@ -8,15 +24,25 @@ init = function(router){
 ///////////////////////////////////////////
   router.route('/question')
 
-    // POST req = {userName="", room:"", text:"", imageURL:""}
+    // POST req = {userName="", room:"", text:"", imageURL:"", (userId:13)}
     .post(function(req, res) {
       console.log("\t" + JSON.stringify(req.body));
       // checks if user is logged in
       // TODO: uncomment this part once front-end is ready
-      if (!req.session.userId) {
+
+      // either get userId from session header, or body
+      var userIdOnPost;
+      if (!req.body.userId && !req.session.userId) {
         res.json({error:"please login to post question"});
         return;
       }
+      if (req.body.userId) {
+        userIdOnPost = req.body.userId;
+      }
+      else {
+        userIdOnPost = req.session.userId;
+      }
+
     	if (!req.body.text) {
     	    res.json({error:"Question has no text!"});
     	    return
@@ -35,7 +61,7 @@ init = function(router){
       //create a new question to save
       var question = new Question({
   	    text: req.body.text,
-        userId: req.session.userId,   // TODO: uncomment this part when front-end is ready
+        userId: userIdOnPost,   // TODO: uncomment this part when front-end is ready
   	    imageURL: imgURL,
   	    room: req.body.room.toLowerCase()
       });
@@ -75,26 +101,35 @@ init = function(router){
       });
     })
 
+
     // GET
     .get(function(req, res) {
+
       Question.find(function(err, questions){
         if (err) {
           console.log(err);
           res.send(err);
   		    return;
   	    }
-        //TODO get all accounts here
-        //TODO loop through all questions, answer and follow_ups, and append appropriate username and experience on top of them
-        /*for (var i=0; i<question.answers.length; i++) {
-          for (var j=0; j<question.answers[i].follow_ups.length; j++) {
-            if (req.body.id==question.answers[i].follow_ups[j]._id) {
-              //console.log("splice "+question.answers[i].follow_ups[j]);
-              question.answers[i].follow_ups.splice(j, 1); // remove from array
-              break;
+        Account.find(function(err, accounts){
+          // loop through all questions, answer and follow_ups, and append appropriate username and experience on top of them
+          // I know that this is super inefficient. T(n) = O(scary)
+          for (var i=0; i<questions.length; ++i) {
+            findAccountAndAppend(accounts, questions[i]);
+            for (var j=0; j<questions[i].answers.length; j++) {
+              findAccountAndAppend(accounts, questions[i].answers[j]);
+              for (var k=0; k<questions[i].answers[j].follow_ups.length; k++) {
+                findAccountAndAppend(accounts, questions[i].answers[j].follow_ups[k]);
+              }
             }
           }
-        }*/
-        res.json(questions);
+
+          res.json(questions);
+          return;
+
+        });
+
+
       });
     });
 
@@ -134,7 +169,23 @@ init = function(router){
            res.send(err);
            return;
          }
-         res.json(questions);
+         Account.find(function(err, accounts){
+           // loop through all questions, answer and follow_ups, and append appropriate username and experience on top of them
+           // I know that this is super inefficient. T(n) = O(scary)
+           for (var i=0; i<questions.length; ++i) {
+             findAccountAndAppend(accounts, questions[i]);
+             for (var j=0; j<questions[i].answers.length; j++) {
+               findAccountAndAppend(accounts, questions[i].answers[j]);
+               for (var k=0; k<questions[i].answers[j].follow_ups.length; k++) {
+                 findAccountAndAppend(accounts, questions[i].answers[j].follow_ups[k]);
+               }
+             }
+           }
+
+           res.json(questions);
+           return;
+
+         });
        });
      });
 }

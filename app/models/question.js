@@ -3,9 +3,9 @@ var Schema = mongoose.Schema;
 
 var QuestionSchema = new Schema({
 	userId: Number,
-	userName : String,
+	username : String, experience : Number, acctType : String,	 jailed : Boolean,	// only appended on GET /questions
 	text: String,
-    room: String,
+  room: String,
 	imageURL: String,
 	time: {type: Date, default: Date.now},
 	//likes = list of persons who like the questions
@@ -13,14 +13,14 @@ var QuestionSchema = new Schema({
 	answers: [{
 		id: Number,
 		userId: Number,
-		username: String,
+		username : String, experience : Number, acctType : String, jailed: Boolean, // only appended on GET /questions
 		text: String,
 		time: {type: Date, default: Date.now},
 		imageURL: String,
 		follow_ups: [{
 			id: Number,
 			userId: Number,
-			username: String,
+			username : String, experience : Number, acctType : String, jailed: Boolean,// only appended on GET /questions
 			text: String,
 			time: {type: Date, default: Date.now},
 			imageURL: String

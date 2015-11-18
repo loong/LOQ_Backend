@@ -33,11 +33,16 @@ init = function(router){
       }
 
       // checks if user is logged in
-      // TODO: uncomment this part once front-end is ready
-
-      if (!req.session.userId) {
+      var userIdOnPost;
+      if (!req.body.userId && !req.session.userId) {
         res.json({error:"please login to post question"});
         return;
+      }
+      if (req.body.userId) {
+        userIdOnPost = req.body.userId;
+      }
+      else {
+        userIdOnPost = req.session.userId;
       }
 
       // what is this?
@@ -60,7 +65,7 @@ init = function(router){
           if (!postImgURL) {
               postImgURL = "";
           }
-          var followupToPush = {"text": req.body.text, "imageURL": postImgURL, userId: req.session.userId};
+          var followupToPush = {"text": req.body.text, "imageURL": postImgURL, userId: userIdOnPost};
           var updatedAnswerIndex = -1;
 
           // decide which answer array to place followup under.
